@@ -42,6 +42,16 @@ final class Url
             || (isset($_SERVER['SERVER_PORT']) && (string) $_SERVER['SERVER_PORT'] === '443');
         $scheme = $https ? 'https' : 'http';
         $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-        return $scheme . '://' . $host . self::scriptBasePath();
+        return rtrim($scheme . '://' . $host . self::scriptBasePath(), '/');
+    }
+
+    /**
+     * URL absoluta para uma rota dentro do admin (ex.: reset-password?token=...).
+     * Não duplica o prefixo /admin.
+     */
+    public static function adminAbsolute(string $pathOrQuery): string
+    {
+        $pathOrQuery = ltrim($pathOrQuery, '/');
+        return self::adminRootAbsolute() . '/' . $pathOrQuery;
     }
 }

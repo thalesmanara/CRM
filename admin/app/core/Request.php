@@ -38,4 +38,9 @@ final class Request
     {
         return $_GET[$key] ?? $default;
     }
+
+    public function postFlag(string $key): bool
+    {
+        return isset($_POST[$key]) && (string) $_POST[$key] === '1';
+    }
 }

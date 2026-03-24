@@ -9,7 +9,9 @@ use Revita\Crm\Helpers\Url;
 /** @var string $title */
 /** @var string $content */
 /** @var array{id:int,login:string,level:int,email:string}|null $user */
+/** @var string $nav */
 
+$nav = $nav ?? 'dashboard';
 $assetLogo = Url::to('/assets/img/logoRevita.png');
 $isAdmin = Auth::isAdmin();
 ?>
@@ -55,6 +57,18 @@ $isAdmin = Auth::isAdmin();
       border-bottom: 1px solid #e3e5e8;
     }
     .badge-level { background: var(--revita-orange); }
+    .btn-revita {
+      background-color: var(--revita-orange);
+      border-color: var(--revita-orange);
+      color: #fff;
+      font-weight: 600;
+      border-radius: 10px;
+    }
+    .btn-revita:hover {
+      background-color: #e67e24;
+      border-color: #e67e24;
+      color: #fff;
+    }
   </style>
 </head>
 <body>
@@ -67,9 +81,9 @@ $isAdmin = Auth::isAdmin();
         </a>
       </div>
       <div class="py-3">
-        <a class="active" href="<?= Escape::html(Url::to('/dashboard')) ?>">Dashboard</a>
+        <a class="<?= $nav === 'dashboard' ? 'active' : '' ?>" href="<?= Escape::html(Url::to('/dashboard')) ?>">Dashboard</a>
         <?php if ($isAdmin): ?>
-          <a href="#">Usuários <span class="small text-secondary">(em breve)</span></a>
+          <a class="<?= $nav === 'users' ? 'active' : '' ?>" href="<?= Escape::html(Url::to('/users')) ?>">Usuários</a>
         <?php endif; ?>
         <a href="#">Páginas <span class="small text-secondary">(em breve)</span></a>
         <a href="#">Postagens <span class="small text-secondary">(em breve)</span></a>

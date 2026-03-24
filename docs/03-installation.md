@@ -42,6 +42,10 @@ O arquivo `admin/.htaccess` usa `RewriteBase /admin/`, adequado quando o CRM est
 ### Desenvolvimento local sem Apache
 O roteamento depende do `.htaccess`. Em ambiente local, use **Apache** com rewrites ou configure o host virtual de forma equivalente. O servidor embutido do PHP (`php -S`) não aplica `.htaccess` automaticamente.
 
+### Recuperação de senha
+- O fluxo **Esqueci minha senha** grava token em `revita_crm_password_resets` e envia link por **`mail()`** do PHP.
+- O recebimento depende da hospedagem (SPF, remetente, função `mail` habilitada). Se o e-mail não chegar, verifique logs do servidor ou substitua `Revita\Crm\Helpers\Mail` por SMTP nas próximas evoluções.
+
 ### Segurança
 - `admin/config/` e `admin/storage/` possuem `.htaccess` com `Require all denied`.
 - Não versionar `admin/config/app.php` (já listado no `.gitignore` na raiz do projeto).

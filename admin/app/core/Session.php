@@ -49,10 +49,14 @@ final class Session
     public static function flash(string $key, ?string $message = null): ?string
     {
         if ($message !== null) {
+            if (!isset($_SESSION['_flash']) || !is_array($_SESSION['_flash'])) {
+                $_SESSION['_flash'] = [];
+            }
             $_SESSION['_flash'][$key] = $message;
             return null;
         }
-        $msg = $_SESSION['_flash'][$key] ?? null;
+        $bag = isset($_SESSION['_flash']) && is_array($_SESSION['_flash']) ? $_SESSION['_flash'] : [];
+        $msg = $bag[$key] ?? null;
         unset($_SESSION['_flash'][$key]);
         return $msg !== null ? (string) $msg : null;
     }

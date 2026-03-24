@@ -10,7 +10,9 @@ use Revita\Crm\Core\Request;
 use Revita\Crm\Core\Response;
 use Revita\Crm\Core\Session;
 use Revita\Crm\Core\View;
+use Revita\Crm\Helpers\Mail;
 use Revita\Crm\Helpers\Url;
+use Revita\Crm\Models\PasswordReset;
 use Revita\Crm\Models\User;
 
 final class AuthController
@@ -33,10 +35,14 @@ final class AuthController
             Url::redirect('/dashboard');
         }
         $error = Session::flash('auth_error');
+        $notice = Session::flash('auth_notice');
+        $success = Session::flash('auth_success');
         $html = View::layout('guest', 'auth/login', [
             'title' => 'Entrar — Revita CRM',
             'csrfToken' => Csrf::token(),
             'error' => $error,
+            'notice' => $notice,
+            'success' => $success,
         ]);
         Response::html($html);
     }
@@ -88,6 +94,114 @@ final class AuthController
     public function logout(Request $request): void
     {
         Auth::logout();
+        Url::redirect('/login');
+    }
+
+    public function showForgotPassword(Request $request): void
+    {
+        if (Auth::check()) {
+            Url::redirect('/dashboard');
+        }
+        $info = Session::flash('forgot_info');
+        $error = Session::flash('forgot_error');
+        $html = View::layout('guest', 'auth/forgot-password', [
+            'title' => 'Recuperar senha — Revita CRM',
+            'csrfToken' => Csrf::token(),
+            'info' => $info,
+            'error' => $error,
+        ]);
+        Response::html($html);
+    }
+
+    public function sendResetLink(Request $request): void
+    {
+        if (!Csrf::validate((string) $request->post('_csrf'))) {
+            Session::flash('forgot_error', 'Sessão expirada. Tente novamente.');
+            Url::redirect('/forgot-password');
+        }
+
+        $email = trim((string) $request->post('email', ''));
+        if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            Session::flash('forgot_error', 'Informe um e-mail válido.');
+            Url::redirect('/forgot-password');
+        }
+
+        $model = new User();
+        $row = $model->findByEmail($email);
+        if ($row !== null && (int) ($row['is_active'] ?? 0) === 1) {
+            $reset = new PasswordReset();
+            $plain = $reset->createForUser((int) $row['id']);
+            $link = Url::adminAbsolute('reset-password?token=' . rawurlencode($plain));
+            $body = "Olá,\r\n\r\nPara redefinir sua senha no Revita CRM, acesse o link abaixo (válido por poucas horas):\r\n\r\n"
+                . $link
+                . "\r\n\r\nSe você não solicitou, ignore este e-mail.\r\n";
+            Mail::sendPlain((string) $row['email'], 'Redefinição de senha — Revita CRM', $body);
+        }
+
+        Session::flash('auth_notice', 'Se o e-mail existir em nossa base, enviamos instruções para redefinição de senha.');
+        Url::redirect('/login');
+    }
+
+    public function showResetPassword(Request $request): void
+    {
+        if (Auth::check()) {
+            Url::redirect('/dashboard');
+        }
+        $token = trim((string) $request->query('token', ''));
+        if ($token === '') {
+            Session::flash('auth_error', 'Link inválido ou expirado.');
+            Url::redirect('/login');
+        }
+        $reset = new PasswordReset();
+        if ($reset->findValidByPlainToken($token) === null) {
+            Session::flash('auth_error', 'Link inválido ou expirado.');
+            Url::redirect('/login');
+        }
+        $error = Session::flash('reset_error');
+        $html = View::layout('guest', 'auth/reset-password', [
+            'title' => 'Nova senha — Revita CRM',
+            'csrfToken' => Csrf::token(),
+            'token' => $token,
+            'error' => $error,
+        ]);
+        Response::html($html);
+    }
+
+    public function resetPassword(Request $request): void
+    {
+        if (!Csrf::validate((string) $request->post('_csrf'))) {
+            Session::flash('reset_error', 'Sessão expirada. Solicite um novo link.');
+            Url::redirect('/forgot-password');
+        }
+
+        $token = trim((string) $request->post('token', ''));
+        $pass = (string) $request->post('password', '');
+        $pass2 = (string) $request->post('password_confirm', '');
+
+        $reset = new PasswordReset();
+        $row = $token !== '' ? $reset->findValidByPlainToken($token) : null;
+        if ($row === null) {
+            Session::flash('auth_error', 'Link inválido ou expirado.');
+            Url::redirect('/login');
+        }
+
+        if (strlen($pass) < 8) {
+            Session::flash('reset_error', 'A senha deve ter no mínimo 8 caracteres.');
+            Url::redirect('/reset-password?token=' . rawurlencode($token));
+        }
+        if ($pass !== $pass2) {
+            Session::flash('reset_error', 'As senhas não conferem.');
+            Url::redirect('/reset-password?token=' . rawurlencode($token));
+        }
+
+        $userId = (int) $row['user_id'];
+        $resetId = (int) $row['id'];
+        $model = new User();
+        $hash = password_hash($pass, PASSWORD_DEFAULT);
+        $model->updatePassword($userId, $hash);
+        $reset->markUsed($resetId);
+
+        Session::flash('auth_success', 'Senha alterada. Faça login com a nova senha.');
         Url::redirect('/login');
     }
 
