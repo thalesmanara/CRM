@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Revita\Crm\Controllers\AuthController;
 use Revita\Crm\Controllers\CategoryController;
 use Revita\Crm\Controllers\DashboardController;
+use Revita\Crm\Controllers\PageController;
 use Revita\Crm\Controllers\UserController;
 
 return [
@@ -23,6 +24,9 @@ return [
         '/categories/edit' => [CategoryController::class, 'editCategoryForm'],
         '/subcategories/create' => [CategoryController::class, 'createSubcategoryForm'],
         '/subcategories/edit' => [CategoryController::class, 'editSubcategoryForm'],
+        '/pages' => [PageController::class, 'index'],
+        '/pages/create' => [PageController::class, 'createForm'],
+        '/pages/edit' => [PageController::class, 'editForm'],
     ],
     'POST' => [
         '/login' => [AuthController::class, 'login'],
@@ -37,5 +41,17 @@ return [
         '/subcategories/store' => [CategoryController::class, 'storeSubcategory'],
         '/subcategories/update' => [CategoryController::class, 'updateSubcategory'],
         '/subcategories/delete' => [CategoryController::class, 'deleteSubcategory'],
+        '/pages/store' => [PageController::class, 'store'],
+        '/pages/update-meta' => [PageController::class, 'updateMeta'],
+        '/pages/update-content' => [PageController::class, 'updateContent'],
+        '/pages/add-field' => [PageController::class, 'addField'],
+        '/pages/delete-field' => [PageController::class, 'deleteField'],
+        '/pages/reorder-fields' => [PageController::class, 'reorderFields'],
+        '/pages/delete' => [PageController::class, 'delete'],
+        '/pages/rep-add-sub' => [PageController::class, 'repeaterAddSubfield'],
+        '/pages/rep-del-sub' => [PageController::class, 'repeaterDeleteSubfield'],
+        '/pages/rep-add-item' => [PageController::class, 'repeaterAddItem'],
+        '/pages/rep-del-item' => [PageController::class, 'repeaterDeleteItem'],
+        '/pages/rep-reorder-items' => [PageController::class, 'repeaterReorderItems'],
     ],
 ];

@@ -6,6 +6,20 @@ namespace Revita\Crm\Core;
 
 final class Request
 {
+    /** @var array<string, string> */
+    private array $routeParams = [];
+
+    /** @param array<string, string> $params */
+    public function setRouteParams(array $params): void
+    {
+        $this->routeParams = $params;
+    }
+
+    public function routeParam(string $key, string $default = ''): string
+    {
+        return $this->routeParams[$key] ?? $default;
+    }
+
     public function method(): string
     {
         return strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');

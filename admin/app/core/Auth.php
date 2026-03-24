@@ -64,4 +64,19 @@ final class Auth
             \Revita\Crm\Helpers\Url::redirect('/dashboard');
         }
     }
+
+    /** Administrador ou editor (níveis 1 e 2). */
+    public static function requireEditor(): void
+    {
+        self::requireAuth();
+        $u = self::user();
+        if ($u === null) {
+            return;
+        }
+        $l = (int) $u['level'];
+        if ($l !== self::LEVEL_ADMIN && $l !== self::LEVEL_EDITOR) {
+            Session::flash('error', 'Você não tem permissão para acessar esta área.');
+            \Revita\Crm\Helpers\Url::redirect('/dashboard');
+        }
+    }
 }

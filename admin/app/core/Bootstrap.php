@@ -29,7 +29,11 @@ final class Bootstrap
         }
 
         if ($installed) {
-            $routes = require REVITA_CRM_ROOT . '/routes/web.php';
+            if (str_starts_with($path, '/api')) {
+                $routes = require REVITA_CRM_ROOT . '/routes/api.php';
+            } else {
+                $routes = require REVITA_CRM_ROOT . '/routes/web.php';
+            }
         } else {
             $routes = [
                 'GET' => [

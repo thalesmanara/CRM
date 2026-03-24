@@ -14,6 +14,7 @@ spl_autoload_register(static function (string $class): void {
         'Controllers' => 'controllers',
         'Models' => 'models',
         'Helpers' => 'helpers',
+        'Services' => 'services',
     ];
     if (!isset($map[$first])) {
         return;

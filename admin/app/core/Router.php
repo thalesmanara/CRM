@@ -20,13 +20,29 @@ final class Router
         $method = $this->request->method();
         $path = $this->request->path();
         $map = $this->routes[$method] ?? [];
-        if (!isset($map[$path])) {
-            http_response_code(404);
-            echo 'Página não encontrada.';
-            exit;
+        if (isset($map[$path])) {
+            [$class, $action] = $map[$path];
+            $controller = new $class();
+            $controller->{$action}($this->request);
+            return;
         }
-        [$class, $action] = $map[$path];
-        $controller = new $class();
-        $controller->{$action}($this->request);
+        $patterns = $this->routes['_patterns'][$method] ?? [];
+        foreach ($patterns as $rule) {
+            if (!preg_match($rule['pattern'], $path, $m)) {
+                continue;
+            }
+            $params = [];
+            foreach ($rule['params'] as $i => $name) {
+                $params[$name] = $m[$i + 1] ?? '';
+            }
+            $this->request->setRouteParams($params);
+            [$class, $action] = $rule['handler'];
+            $controller = new $class();
+            $controller->{$action}($this->request);
+            return;
+        }
+        http_response_code(404);
+        echo 'Página não encontrada.';
+        exit;
     }
 }

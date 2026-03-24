@@ -40,8 +40,9 @@ Etapas concluídas neste repositório (atualizado a cada fase):
 | **4** | Autenticação, dashboard mínimo, layout com identidade Revita (laranja `#FF912C`) |
 | **5** | **CRUD de usuários** (somente administrador nível 1); **recuperação de senha** por token (`mail()` + link com tempo de expiração) |
 | **6** | **Categorias e subcategorias** (CRUD admin, slugs, exclusão de categoria remove subcategorias vinculadas); deploy oficial em `/admin` com `RewriteBase /admin/` |
+| **7** | **Páginas** com campos dinâmicos (texto, foto, galerias, vídeo upload/YouTube, repetidor com subcampos), **upload** em `uploads/`, ordenação de campos (SortableJS), permissões (admin exclui página/campo/subcampo). **API JSON:** `GET /admin/api/pages`, `GET /admin/api/pages/{slug}`, `?slug=` (somente **publicadas** no site) |
 
-**Próxima etapa sugerida:** módulo de **páginas** com **campos dinâmicos** (definições, valores, ordem, upload de mídia), depois **API JSON** para páginas.
+**Próxima etapa sugerida:** módulo de **postagens** (com categorias, imagem destacada, campos dinâmicos) e endpoints **`/admin/api/posts`**, **`/admin/api/categories`**, **`/admin/api/subcategories`**.
 
 > Este `README.md` é atualizado a cada etapa entregue no repositório para refletir o histórico e o escopo atual.
 
