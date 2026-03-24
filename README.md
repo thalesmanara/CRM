@@ -22,9 +22,11 @@ CRM/CMS leve em **PHP + MySQL** para a **Revita Comunicação**, pensado para ho
 ## Instalação rápida
 
 1. Criar o banco MySQL manualmente.
-2. Enviar a pasta `admin/` para `public_html/admin/`.
-3. Acessar `/admin` e seguir o **instalador** (primeira execução).
+2. Enviar a pasta `admin/` para **`public_html/admin/`**.
+3. Acessar **`https://seusite.com.br/admin`** e seguir o **instalador** (`/install`).
 4. Credenciais padrão do usuário mestre estão em [docs/03-installation.md](docs/03-installation.md) — altere a senha após o primeiro acesso quando possível.
+
+Detalhes, `.htaccess` e troubleshooting: [docs/03-installation.md](docs/03-installation.md).
 
 ## Histórico de etapas do projeto
 
@@ -37,8 +39,9 @@ Etapas concluídas neste repositório (atualizado a cada fase):
 | **3** | Núcleo MVC leve, sessão, CSRF no login, rate limit simples no login |
 | **4** | Autenticação, dashboard mínimo, layout com identidade Revita (laranja `#FF912C`) |
 | **5** | **CRUD de usuários** (somente administrador nível 1); **recuperação de senha** por token (`mail()` + link com tempo de expiração) |
+| **6** | **Categorias e subcategorias** (CRUD admin, slugs, exclusão de categoria remove subcategorias vinculadas); deploy oficial em `/admin` com `RewriteBase /admin/` |
 
-**Próxima etapa sugerida:** módulo de **categorias e subcategorias** (CRUD + validações e vínculo pai/filho), depois **páginas com campos dinâmicos**.
+**Próxima etapa sugerida:** módulo de **páginas** com **campos dinâmicos** (definições, valores, ordem, upload de mídia), depois **API JSON** para páginas.
 
 > Este `README.md` é atualizado a cada etapa entregue no repositório para refletir o histórico e o escopo atual.
 

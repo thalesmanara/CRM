@@ -98,5 +98,12 @@ final class Subcategory
         $stmt = $pdo->prepare('DELETE FROM revita_crm_subcategories WHERE id = :id');
         $stmt->execute(['id' => $id]);
     }
+
+    public function deleteAllByCategoryId(int $categoryId): void
+    {
+        $pdo = Database::pdo();
+        $stmt = $pdo->prepare('DELETE FROM revita_crm_subcategories WHERE category_id = :cid');
+        $stmt->execute(['cid' => $categoryId]);
+    }
 }
 

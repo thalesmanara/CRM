@@ -152,10 +152,12 @@ final class CategoryController
             Session::flash('error', 'Categoria inválida.');
             Url::redirect('/categories');
         }
-        // Nota: posts ainda não implementados; quando forem, vamos impedir deletar se houver posts vinculados.
+        // Quando postagens existirem, validar vínculos antes de excluir.
         $model = new Category();
+        $sub = new Subcategory();
+        $sub->deleteAllByCategoryId($id);
         $model->delete($id);
-        Session::flash('ok', 'Categoria removida.');
+        Session::flash('ok', 'Categoria removida (subcategorias vinculadas também foram removidas).');
         Url::redirect('/categories');
     }
 
