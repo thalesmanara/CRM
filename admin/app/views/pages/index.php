@@ -20,7 +20,9 @@ use Revita\Crm\Helpers\Url;
 
 <div class="d-flex justify-content-between align-items-center mb-4">
   <h2 class="h5 mb-0">Páginas</h2>
-  <a class="btn btn-revita btn-sm" href="<?= Escape::html(Url::to('/pages/create')) ?>">Nova página</a>
+  <?php if ($isAdmin): ?>
+    <a class="btn btn-revita btn-sm" href="<?= Escape::html(Url::to('/pages/create')) ?>">Nova página</a>
+  <?php endif; ?>
 </div>
 
 <div class="table-responsive card border-0 shadow-sm" style="border-radius:12px;">

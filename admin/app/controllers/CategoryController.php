@@ -19,7 +19,7 @@ final class CategoryController
 {
     public function index(Request $request): void
     {
-        Auth::requireAdmin();
+        Auth::requireEditor();
         $cat = new Category();
         $sub = new Subcategory();
 
@@ -40,7 +40,7 @@ final class CategoryController
 
     public function createCategoryForm(Request $request): void
     {
-        Auth::requireAdmin();
+        Auth::requireEditor();
         $html = View::layout('admin', 'categories/category-form', [
             'title' => 'Nova categoria — Revita CRM',
             'nav' => 'categories',
@@ -54,7 +54,7 @@ final class CategoryController
 
     public function storeCategory(Request $request): void
     {
-        Auth::requireAdmin();
+        Auth::requireEditor();
         if (!Csrf::validate((string) $request->post('_csrf'))) {
             Session::flash('category_form_error', 'Sessão expirada. Tente novamente.');
             Url::redirect('/categories/create');
@@ -87,7 +87,7 @@ final class CategoryController
 
     public function editCategoryForm(Request $request): void
     {
-        Auth::requireAdmin();
+        Auth::requireEditor();
         $id = (int) $request->query('id', 0);
         $model = new Category();
         $row = $model->findById($id);
@@ -108,7 +108,7 @@ final class CategoryController
 
     public function updateCategory(Request $request): void
     {
-        Auth::requireAdmin();
+        Auth::requireEditor();
         if (!Csrf::validate((string) $request->post('_csrf'))) {
             Session::flash('error', 'Sessão expirada.');
             Url::redirect('/categories');
@@ -165,7 +165,7 @@ final class CategoryController
 
     public function createSubcategoryForm(Request $request): void
     {
-        Auth::requireAdmin();
+        Auth::requireEditor();
         $cat = new Category();
         $html = View::layout('admin', 'categories/subcategory-form', [
             'title' => 'Nova subcategoria — Revita CRM',
@@ -181,7 +181,7 @@ final class CategoryController
 
     public function storeSubcategory(Request $request): void
     {
-        Auth::requireAdmin();
+        Auth::requireEditor();
         if (!Csrf::validate((string) $request->post('_csrf'))) {
             Session::flash('subcategory_form_error', 'Sessão expirada. Tente novamente.');
             Url::redirect('/subcategories/create');
@@ -217,7 +217,7 @@ final class CategoryController
 
     public function editSubcategoryForm(Request $request): void
     {
-        Auth::requireAdmin();
+        Auth::requireEditor();
         $id = (int) $request->query('id', 0);
         $model = new Subcategory();
         $row = $model->findById($id);
@@ -240,7 +240,7 @@ final class CategoryController
 
     public function updateSubcategory(Request $request): void
     {
-        Auth::requireAdmin();
+        Auth::requireEditor();
         if (!Csrf::validate((string) $request->post('_csrf'))) {
             Session::flash('error', 'Sessão expirada.');
             Url::redirect('/categories');

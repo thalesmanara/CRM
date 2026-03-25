@@ -50,7 +50,7 @@ final class PageController
 
     public function createForm(Request $request): void
     {
-        Auth::requireEditor();
+        Auth::requireAdmin();
         $html = View::layout('admin', 'pages/create', [
             'title' => 'Nova página — Revita CRM',
             'nav' => 'pages',
@@ -63,7 +63,7 @@ final class PageController
 
     public function store(Request $request): void
     {
-        Auth::requireEditor();
+        Auth::requireAdmin();
         if (!Csrf::validate((string) $request->post('_csrf'))) {
             Session::flash('page_form_error', 'Sessão expirada.');
             Url::redirect('/pages/create');
