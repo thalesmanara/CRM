@@ -507,8 +507,7 @@ if (!function_exists('revita_crm_page_field_label')) {
                 <div class="mb-3 pb-2 border-bottom">
                   <label class="form-label small mb-1"><?= Escape::html((string) $sf['label_name']) ?></label>
                   <?php if ($st === 'texto'): ?>
-                    <input class="form-control form-control-sm" name="rp_<?= $iid ?>_<?= $sid ?>" form="<?= Escape::html($formContent) ?>"
-                           value="<?= $vr ? Escape::html((string) ($vr['value_text'] ?? '')) : '' ?>">
+                    <textarea class="form-control" name="rp_<?= $iid ?>_<?= $sid ?>" form="<?= Escape::html($formContent) ?>" rows="6"><?= $vr ? Escape::html((string) ($vr['value_text'] ?? '')) : '' ?></textarea>
                   <?php elseif ($st === 'botao'): ?>
                     <div class="row g-1">
                       <div class="col">
