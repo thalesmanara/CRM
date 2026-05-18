@@ -6,6 +6,8 @@
 return [
     'installed' => false,
     'installed_at' => null,
+    // Preenchido automaticamente na instalação (ex.: '/adminnexa'). Opcional: ajuste se mudar a pasta.
+    'base_path' => '',
     'db' => [
         'host' => 'localhost',
         'name' => '',

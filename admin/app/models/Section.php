@@ -70,5 +70,17 @@ final class Section
         $stmt = $pdo->prepare('DELETE FROM revita_crm_sections WHERE id = :id');
         $stmt->execute(['id' => $id]);
     }
+
+    public function deleteAllByOwner(string $ownerType, int $ownerId): void
+    {
+        if ($ownerId < 1) {
+            return;
+        }
+        $pdo = Database::pdo();
+        $stmt = $pdo->prepare(
+            'DELETE FROM revita_crm_sections WHERE owner_type = :ot AND owner_id = :oid'
+        );
+        $stmt->execute(['ot' => $ownerType, 'oid' => $ownerId]);
+    }
 }
 

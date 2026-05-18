@@ -13,6 +13,7 @@ use Revita\Crm\Core\View;
 use Revita\Crm\Helpers\Slugger;
 use Revita\Crm\Helpers\Url;
 use Revita\Crm\Models\Category;
+use Revita\Crm\Models\Post;
 use Revita\Crm\Models\Subcategory;
 
 final class CategoryController
@@ -152,7 +153,14 @@ final class CategoryController
             Session::flash('error', 'Categoria inválida.');
             Url::redirect('/categories');
         }
-        // Quando postagens existirem, validar vínculos antes de excluir.
+        $postCount = (new Post())->countByCategoryId($id);
+        if ($postCount > 0) {
+            Session::flash(
+                'error',
+                'Não é possível excluir: existem ' . $postCount . ' postagem(ns) vinculada(s) a esta categoria.'
+            );
+            Url::redirect('/categories');
+        }
         $model = new Category();
         $sub = new Subcategory();
         $sub->deleteAllByCategoryId($id);
@@ -290,6 +298,14 @@ final class CategoryController
         $id = (int) $request->post('id', 0);
         if ($id < 1) {
             Session::flash('error', 'Subcategoria inválida.');
+            Url::redirect('/categories');
+        }
+        $postCount = (new Post())->countBySubcategoryId($id);
+        if ($postCount > 0) {
+            Session::flash(
+                'error',
+                'Não é possível excluir: existem ' . $postCount . ' postagem(ns) vinculada(s) a esta subcategoria.'
+            );
             Url::redirect('/categories');
         }
         $model = new Subcategory();

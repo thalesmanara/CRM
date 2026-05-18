@@ -10,9 +10,8 @@ use Revita\Crm\Core\Config;
 use Revita\Crm\Core\Csrf;
 use Revita\Crm\Core\Database;
 use Revita\Crm\Core\Request;
-use Revita\Crm\Core\Response;
 use Revita\Crm\Core\Session;
-use Revita\Crm\Core\View;
+use Revita\Crm\Helpers\Url;
 
 final class InstallController
 {
@@ -24,83 +23,125 @@ final class InstallController
 
     public function showForm(Request $request): void
     {
-        $error = Session::flash('install_error');
-        $html = View::layout('guest', 'install/index', [
-            'title' => 'Instalação — Revita CMS',
-            'csrfToken' => Csrf::token(),
-            'error' => $error,
-        ]);
-        Response::html($html);
+        $this->renderForm($request, Session::flash('install_error'));
     }
 
     public function submit(Request $request): void
     {
+        $form = $this->formInput($request);
+
         if (!Csrf::validate((string) $request->post('_csrf'))) {
-            Session::flash('install_error', 'Sessão inválida. Atualize a página e tente novamente.');
-            \Revita\Crm\Helpers\Url::redirect('/install');
+            $this->renderForm($request, 'Sessão inválida. Atualize a página e tente novamente.');
+            return;
         }
 
-        $host = trim((string) $request->post('db_host', ''));
-        $name = trim((string) $request->post('db_name', ''));
-        $user = trim((string) $request->post('db_user', ''));
-        $pass = (string) $request->post('db_password', '');
-
-        if ($host === '' || $name === '' || $user === '') {
-            Session::flash('install_error', 'Preencha host, nome do banco e usuário.');
-            \Revita\Crm\Helpers\Url::redirect('/install');
+        if ($form['db_host'] === '' || $form['db_name'] === '' || $form['db_user'] === '') {
+            $this->renderForm($request, 'Preencha host, nome do banco e usuário.');
+            return;
         }
 
         try {
             $pdo = Database::fromConfig([
-                'host' => $host,
-                'name' => $name,
-                'user' => $user,
-                'password' => $pass,
+                'host' => $form['db_host'],
+                'name' => $form['db_name'],
+                'user' => $form['db_user'],
+                'password' => $form['db_password'],
                 'charset' => 'utf8mb4',
             ], true);
         } catch (PDOException $e) {
-            Session::flash('install_error', self::connectionErrorMessage($e));
-            \Revita\Crm\Helpers\Url::redirect('/install');
+            $this->renderForm($request, self::connectionErrorMessage($e));
+            return;
         }
 
         $schemaPath = REVITA_CRM_ROOT . '/database/schema.sql';
         if (!is_file($schemaPath)) {
-            Session::flash('install_error', 'Arquivo de schema não encontrado (database/schema.sql).');
-            \Revita\Crm\Helpers\Url::redirect('/install');
+            $this->renderForm($request, 'Arquivo de schema não encontrado (database/schema.sql).');
+            return;
         }
-        $sql = (string) file_get_contents($schemaPath);
-        $sql = preg_replace('/--.*$/m', '', $sql) ?? $sql;
 
         try {
-            $pdo->exec($sql);
+            self::runSchemaSql($pdo, (string) file_get_contents($schemaPath));
         } catch (PDOException $e) {
             $hint = 'Confirme se o usuário tem permissão CREATE/ALTER ou importe manualmente o arquivo database/schema.sql.';
-            Session::flash('install_error', 'Erro ao executar o schema SQL.' . "\n\n" . $hint . "\n\n" . 'Detalhe: ' . $e->getMessage());
-            \Revita\Crm\Helpers\Url::redirect('/install');
+            $this->renderForm(
+                $request,
+                'Erro ao executar o schema SQL.' . "\n\n" . $hint . "\n\n" . 'Detalhe: ' . $e->getMessage()
+            );
+            return;
         }
 
         $this->seedMasterUser($pdo);
 
+        $basePath = Url::detectBasePathFromFilesystem() ?: Url::detectBasePathFromServer();
+        if ($basePath === '' && session_status() === PHP_SESSION_ACTIVE) {
+            $stored = Session::get('_cms_base_path');
+            if (is_string($stored) && $stored !== '') {
+                $basePath = $stored;
+            }
+        }
+
         $config = [
             'installed' => true,
             'installed_at' => date('c'),
+            'base_path' => $basePath,
             'db' => [
-                'host' => $host,
-                'name' => $name,
-                'user' => $user,
-                'password' => $pass,
+                'host' => $form['db_host'],
+                'name' => $form['db_name'],
+                'user' => $form['db_user'],
+                'password' => $form['db_password'],
                 'charset' => 'utf8mb4',
             ],
         ];
 
         $exported = "<?php\n\ndeclare(strict_types=1);\n\nreturn " . var_export($config, true) . ";\n";
         if (file_put_contents(Config::path(), $exported) === false) {
-            Session::flash('install_error', 'Não foi possível gravar admin/config/app.php (permissões).');
-            \Revita\Crm\Helpers\Url::redirect('/install');
+            $this->renderForm(
+                $request,
+                'Não foi possível gravar config/app.php. Ajuste permissões da pasta config/ (gravável pelo PHP).'
+            );
+            return;
         }
 
+        Config::resetCache();
+        Database::reset();
         Session::regenerate();
-        \Revita\Crm\Helpers\Url::redirect('/login');
+        Url::redirect('/login');
+    }
+
+    /** @return array{db_host:string,db_name:string,db_user:string,db_password:string} */
+    private function formInput(Request $request): array
+    {
+        return [
+            'db_host' => trim((string) $request->post('db_host', '')),
+            'db_name' => trim((string) $request->post('db_name', '')),
+            'db_user' => trim((string) $request->post('db_user', '')),
+            'db_password' => (string) $request->post('db_password', ''),
+        ];
+    }
+
+    private function renderForm(Request $request, ?string $error): void
+    {
+        $form = $this->formInput($request);
+        $html = \Revita\Crm\Core\View::layout('guest', 'install/index', [
+            'title' => 'Instalação — Revita CMS',
+            'csrfToken' => Csrf::token(),
+            'error' => $error,
+            'form' => $form,
+            'installAction' => Url::adminAbsolute('install'),
+        ]);
+        \Revita\Crm\Core\Response::html($html);
+    }
+
+    private static function runSchemaSql(PDO $pdo, string $sql): void
+    {
+        $sql = preg_replace('/--.*$/m', '', $sql) ?? $sql;
+        $statements = array_filter(array_map('trim', preg_split('/;\s*(?:\r?\n|$)/', $sql) ?: []));
+        foreach ($statements as $stmt) {
+            if ($stmt === '') {
+                continue;
+            }
+            $pdo->exec($stmt);
+        }
     }
 
     private function seedMasterUser(PDO $pdo): void

@@ -562,6 +562,7 @@ final class PostController
         foreach ((new FieldDefinition())->listByPostId($id) as $f) {
             $this->deleteFieldCascade((int) $f['id']);
         }
+        (new Section())->deleteAllByOwner(FieldDefinition::OWNER_POST, $id);
         $p->delete($id);
         Session::flash('ok', 'Post excluído.');
         Url::redirect('/posts');

@@ -1,7 +1,9 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  # Deploy oficial: painel em https://dominio/admin
-  RewriteBase /admin/
+  # A pasta do CMS pode ter qualquer nome (ex.: /admin, /adminnexa, /painel).
+  # Não use RewriteBase fixo em /admin/ — isso quebra em outras pastas.
+  # Se /login ou /install retornar 404, descomente e ajuste para o caminho real:
+  # RewriteBase /adminnexa/
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule ^ index.php [QSA,L]

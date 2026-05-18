@@ -13,9 +13,10 @@ final class Session
         }
         $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
             || (isset($_SERVER['SERVER_PORT']) && (string) $_SERVER['SERVER_PORT'] === '443');
+        // path=/ evita perder sessão/CSRF quando o CMS está em subpasta (/adminnexa, etc.)
         session_set_cookie_params([
             'lifetime' => 0,
-            'path' => \Revita\Crm\Helpers\Url::scriptBasePath() . '/',
+            'path' => '/',
             'secure' => $secure,
             'httponly' => true,
             'samesite' => 'Lax',

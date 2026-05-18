@@ -473,6 +473,7 @@ final class PageController
         foreach ((new FieldDefinition())->listByPageId($id) as $f) {
             $this->deleteFieldCascade((int) $f['id']);
         }
+        (new Section())->deleteAllByOwner(FieldDefinition::OWNER_PAGE, $id);
         $p->delete($id);
         Session::flash('ok', 'Página excluída.');
         Url::redirect('/pages');

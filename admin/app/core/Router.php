@@ -15,10 +15,10 @@ final class Router
     ) {
     }
 
-    public function dispatch(): void
+    public function dispatch(?string $pathOverride = null): void
     {
         $method = $this->request->method();
-        $path = $this->request->path();
+        $path = $pathOverride ?? $this->request->path();
         $map = $this->routes[$method] ?? [];
         if (isset($map[$path])) {
             [$class, $action] = $map[$path];

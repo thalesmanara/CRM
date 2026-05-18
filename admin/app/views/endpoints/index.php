@@ -10,7 +10,7 @@ use Revita\Crm\Helpers\Escape;
   <div class="card-body p-4">
     <h2 class="h5 mb-3">Endpoints do projeto</h2>
     <p class="text-secondary mb-4">
-      Lista completa das rotas do painel <code>/admin</code> e da API JSON <code>/admin/api</code> (para facilitar o consumo no site).
+      Lista completa das rotas do painel e da API JSON (prefixo = pasta onde o CMS está instalado).
     </p>
 
     <?php foreach ($endpoints as $section => $items): ?>

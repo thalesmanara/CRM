@@ -24,6 +24,7 @@ final class BackupController
         'revita_crm_repeater_definitions',
         'revita_crm_field_values',
         'revita_crm_field_definitions',
+        'revita_crm_sections',
         'revita_crm_posts',
         'revita_crm_pages',
         'revita_crm_media',

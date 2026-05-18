@@ -37,6 +37,11 @@ final class Config
         return !empty($c['installed']);
     }
 
+    public static function resetCache(): void
+    {
+        self::$cache = null;
+    }
+
     /** @return array<string, string> */
     public static function db(): array
     {

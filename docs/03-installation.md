@@ -44,8 +44,15 @@ Conforme especificação do projeto, **não** há tela no painel para alterar cr
   1. Confirme `public_html/admin/index.php` e `public_html/admin/.htaccess`.
   2. Teste `https://dominio/admin/index.php` — se também der 404, o upload/caminho está incorreto.
 
-### Fora do padrão `/admin` (opcional)
-Se o painel for colocado em outra URL (ex. subpasta extra no domínio), será necessário ajustar **`RewriteBase`** no `admin/.htaccess` para coincidir com o caminho público da pasta (este repositório assume **`/admin`**).
+### Pasta com outro nome (ex.: `/adminnexa`, `/painel`)
+O CMS **não exige** que a pasta se chame `admin`. Basta enviar o conteúdo de `admin/` para a subpasta desejada (ex.: `public_html/adminnexa/`).
+
+1. A URL será `https://dominio.com.br/adminnexa` (ou o nome que você escolher).
+2. No servidor, edite `adminnexa/.htaccess`: **não** deixe `RewriteBase /admin/`. O padrão do projeto já vem sem prefixo fixo; se rotas derem 404, descomente e use `RewriteBase /adminnexa/` (com o nome real da pasta).
+3. Na instalação, o CMS grava `base_path` em `config/app.php` (ex.: `/adminnexa`) para links e API.
+4. Instalações antigas: após atualizar o código, ajuste o `.htaccess` no servidor e, se necessário, inclua em `config/app.php`: `'base_path' => '/adminnexa',`
+
+**Erro no console** (`Unsafe attempt to load URL ... from frame chrome-error://`): em geral a página não carregou (404/redirect errado por `RewriteBase` incorreto), não é iframe do CMS. Corrija o `.htaccess` e teste `https://dominio/adminnexa/index.php` e depois `https://dominio/adminnexa/install`.
 
 ### Desenvolvimento local sem Apache
 O roteamento depende do `.htaccess`. Em ambiente local, use **Apache** com rewrites ou o equivalente. O servidor embutido do PHP (`php -S`) não aplica `.htaccess` automaticamente.

@@ -220,6 +220,28 @@ final class Post
         ]);
     }
 
+    public function countByCategoryId(int $categoryId): int
+    {
+        if ($categoryId < 1) {
+            return 0;
+        }
+        $pdo = Database::pdo();
+        $stmt = $pdo->prepare('SELECT COUNT(*) FROM revita_crm_posts WHERE category_id = :cid');
+        $stmt->execute(['cid' => $categoryId]);
+        return (int) $stmt->fetchColumn();
+    }
+
+    public function countBySubcategoryId(int $subcategoryId): int
+    {
+        if ($subcategoryId < 1) {
+            return 0;
+        }
+        $pdo = Database::pdo();
+        $stmt = $pdo->prepare('SELECT COUNT(*) FROM revita_crm_posts WHERE subcategory_id = :sid');
+        $stmt->execute(['sid' => $subcategoryId]);
+        return (int) $stmt->fetchColumn();
+    }
+
     public function delete(int $id): void
     {
         $pdo = Database::pdo();
